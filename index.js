@@ -44,13 +44,7 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000 * 100, // 2400 hours
   })
 );
-if (process.env.NODE_ENV === "production") {
-  //Set static folder
-  app.use(express.static("reccomendedAlbum/build"));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "reccomendedAlbum", "build", "index.html"));
-  });
-}
+
 
 //DB CONNECTION
 
