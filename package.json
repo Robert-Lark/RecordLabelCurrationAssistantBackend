@@ -6,7 +6,7 @@
   "scripts": {
     "devStart": "nodemon index.js",
     "start": "node index.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix reccomendedAlbum && npm run build --prefix reccomendedAlbum"
   },
   "repository": {
     "type": "git",
