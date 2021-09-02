@@ -20,7 +20,7 @@ app.use(
     credentials: true,
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://rlca-fronend.herokuapp.com"
+        ? "https://sonic-architecture-v1.netlify.app"
         : "http://localhost:3000",
   })
 );
@@ -66,7 +66,7 @@ const API_BASE_URL =
     : "http://localhost:3001";
 const client_url =
   process.env.NODE_ENV === "production"
-    ? "https://rlca-fronend.herokuapp.com"
+    ? "https://sonic-architecture-v1.netlify.app"
     : "http://localhost:3000";
 
 db.on("error", (error) => console.error(error));
