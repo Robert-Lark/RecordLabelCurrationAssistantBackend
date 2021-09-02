@@ -94,7 +94,7 @@ app.get("/authorize", (req, res) => {
     process.env.DISCOGS_API_SECRET,
     `${API_BASE_URL}/callback`,
     function (err, requestData) {
-      req.session.requestData = JSON.stringify(requestData);
+      req.session.requestData = requestData;
       // res.status(200).json(`/authorize: ${req.session.requestData}`)
       res.redirect(requestData.authorizeUrl);
 });
@@ -103,9 +103,9 @@ app.get("/authorize", (req, res) => {
 // // get access token
 
 app.get("/callback", (req, res) => {
-  let oAuth = new Discogs(JSON.parse(req.session.requestData)).oauth();
+  let oAuth = new Discogs(req.session.requestData).oauth();
   oAuth.getAccessToken(req.query.oauth_verifier, function (err, accessData) {
-    req.session.requestData = JSON.stringify(accessData);
+    req.session.requestData = accessData;
           res.redirect(`${client_url}/authorizing`);
   });
 });
@@ -114,7 +114,7 @@ app.get("/callback", (req, res) => {
 
 app.get("/identity", function (req, res) {
       // res.status(200).json(`/identity accessData: ${req.session.accessData}`)
-      let dis = new Discogs(JSON.parse(req.session.requestData));
+      let dis = new Discogs(req.session.requestData);
   dis.getIdentity(function (err, data) {
     console.log(err, data);
     res.send(data);
