@@ -1,4 +1,8 @@
 require("dotenv").config();
+const fs = require('fs')
+const access = fs.readFileSync('accessData.json')
+const parsedData = JSON.parse(access)
+console.log(parsedData)
 const Discogs = require("disconnect").Client;
 const express = require("express");
 const app = express();
@@ -96,7 +100,6 @@ app.get("/authorize", (req, res) => {
     function (err, requestData) {
       req.session.requestData = JSON.stringify(requestData);
       console.log(req.session)
-      // res.status(200).json(`/authorize: ${req.session.requestData}`)
       res.redirect(requestData.authorizeUrl);
 });
 });
@@ -106,6 +109,11 @@ app.get("/authorize", (req, res) => {
 app.get("/callback", (req, res) => {
   let oAuth = new Discogs(JSON.parse(req.session.requestData)).oauth();
   oAuth.getAccessToken(req.query.oauth_verifier, function (err, accessData) {
+    let discogsAccessData = JSON.stringify(accessData)
+    fs.writeFile('accessData.json', discogsAccessData, (err, data) => {
+      if (err) throw err;
+      console.log(data);
+    })
     req.session.requestData = JSON.stringify(accessData);
     console.log(req.session)
           res.redirect(`${client_url}/authorizing`);
@@ -115,9 +123,12 @@ app.get("/callback", (req, res) => {
 // // make the OAuth call
 
 app.get("/identity", function (req, res) {
-      // res.status(200).json(`/identity accessData: ${req.session.accessData}`)
       console.log(req.session)
-      let dis = new Discogs(JSON.parse(req.session.requestData));
+      let discogsData =  fs.readFile('accessData.json', (err, data) => {
+        if (err) throw err;
+        console.log(data);
+      })
+      let dis = new Discogs(JSON.parse(discogsData));
   dis.getIdentity(function (err, data) {
     console.log(err, data);
     res.send(data);
