@@ -1,5 +1,8 @@
 require("dotenv").config();
-const fs = require("fs");
+const fs = require('fs')
+const access = fs.readFileSync('accessData.json')
+const parsedData = JSON.parse(access)
+console.log(parsedData)
 const Discogs = require("disconnect").Client;
 const express = require("express");
 const app = express();
@@ -26,7 +29,7 @@ app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Credentials", "true");
   next();
 });
-app.enable("trust proxy");
+app.enable('trust proxy')
 app.set("trust proxy", 1); // trust first proxy
 
 //WITH SESSION
@@ -35,7 +38,7 @@ app.use(
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
-    proxy: true,
+    proxy : true,
     cookie: {
       secure: process.env.NODE_ENV === "production",
       sameSite: false,
@@ -45,6 +48,7 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000 * 100, // 2400 hours
   })
 );
+
 
 //DB CONNECTION
 
@@ -80,7 +84,12 @@ app.get("/", (req, res) => {
   });
 });
 
+
+
+
 //get Request Token
+
+
 
 app.get("/authorize", (req, res) => {
   let oAuth = new Discogs().oauth();
@@ -90,10 +99,8 @@ app.get("/authorize", (req, res) => {
     `${API_BASE_URL}/callback`,
     function (err, requestData) {
       req.session.requestData = JSON.stringify(requestData);
-      console.log(req.session);
       res.redirect(requestData.authorizeUrl);
-    }
-  );
+});
 });
 
 // // get access token
@@ -101,29 +108,25 @@ app.get("/authorize", (req, res) => {
 app.get("/callback", (req, res) => {
   let oAuth = new Discogs(JSON.parse(req.session.requestData)).oauth();
   oAuth.getAccessToken(req.query.oauth_verifier, function (err, accessData) {
-    let discogsAccessData = JSON.stringify(accessData);
-    fs.writeFile("accessData.json", discogsAccessData, (err, data) => {
-      if (err) throw err;
-      console.log(JSON.parse(data));
-    });
+    fs.writeFile('accessData.json', JSON.stringify(accessData), (err) => {console.log(err)})
     req.session.requestData = JSON.stringify(accessData);
-    console.log(req.session);
-    res.redirect(`${client_url}/authorizing`);
+          res.redirect(`${client_url}/authorizing`);
   });
 });
 
 // // make the OAuth call
 
 app.get("/identity", function (req, res) {
-  let discogsData = fs.readFile("accessData.json", (err, data) => {
+  fs.readFile('accessData.json', (err, data) => {
     if (err) throw err;
     console.log(JSON.parse(data));
-  });
-  let dis = new Discogs(JSON.parse(discogsData));
+    let dis = new Discogs(JSON.parse(data));
   dis.getIdentity(function (err, data) {
     console.log(err, data);
     res.send(data);
   });
+  });
+      
 });
 
 //search for a new label
@@ -155,3 +158,4 @@ app.get("/usersLabelsSearch", function (req, res) {
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));
+
