@@ -131,30 +131,32 @@ app.get("/identity", function (req, res) {
 
 //search for a new label
 app.get("/search", function (req, res) {
-  let dis = new Discogs(
-    "Sonic Archtecturev1.0",
-    tempArr[1]
-    // JSON.parse(req.session.accessData)
-  );
+  fs.readFile('accessData.json', (err, data) => {
+    if (err) throw err;
+    console.log(JSON.parse(data));
+    let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis.database().search(req.query.discogsAccessparams, function (err, data) {
     console.log(err, data);
     res.send(data);
   });
 });
+    
+});
 //search for entries in the users labels
 
 app.get("/usersLabelsSearch", function (req, res) {
-  let dis = new Discogs(
-    "Sonic Archtecturev1.0",
-    tempArr[1]
-    // JSON.parse(req.session.accessData)
-  );
+  fs.readFile('accessData.json', (err, data) => {
+    if (err) throw err;
+    console.log(JSON.parse(data));
+    let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis
     .database()
     .getLabelReleases(req.query.discogsAccessParams, function (err, data) {
       console.log(err);
       res.send(data);
     });
+  });
+      
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));
