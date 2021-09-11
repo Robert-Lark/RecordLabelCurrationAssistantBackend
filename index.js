@@ -119,7 +119,6 @@ app.get("/callback", (req, res) => {
 app.get("/identity", function (req, res) {
   fs.readFile('accessData.json', (err, data) => {
     if (err) throw err;
-    console.log(JSON.parse(data));
     let dis = new Discogs(JSON.parse(data));
   dis.getIdentity(function (err, data) {
     console.log(err, data);
@@ -133,7 +132,6 @@ app.get("/identity", function (req, res) {
 app.get("/search", function (req, res) {
   fs.readFile('accessData.json', (err, data) => {
     if (err) throw err;
-    console.log(JSON.parse(data));
     let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis.database().search(req.query.discogsAccessparams, function (err, data) {
     console.log(err, data);
@@ -147,7 +145,6 @@ app.get("/search", function (req, res) {
 app.get("/usersLabelsSearch", function (req, res) {
   fs.readFile('accessData.json', (err, data) => {
     if (err) throw err;
-    console.log(JSON.parse(data));
     let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis
     .database()
