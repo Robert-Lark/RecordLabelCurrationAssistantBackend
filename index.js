@@ -1,8 +1,8 @@
 require("dotenv").config();
 const fs = require('fs')
 const access = fs.readFileSync('ad.json')
-const parsedData = JSON.parse(access)
-console.log(parsedData)
+// const parsedData = JSON.parse(access)
+// console.log(parsedData)
 const Discogs = require("disconnect").Client;
 const express = require("express");
 const app = express();
