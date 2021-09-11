@@ -1,6 +1,6 @@
 require("dotenv").config();
 const fs = require('fs')
-const access = fs.readFileSync('accessData.json')
+const access = fs.readFileSync('ad.json')
 const parsedData = JSON.parse(access)
 console.log(parsedData)
 const Discogs = require("disconnect").Client;
@@ -108,7 +108,7 @@ app.get("/authorize", (req, res) => {
 app.get("/callback", (req, res) => {
   let oAuth = new Discogs(JSON.parse(req.session.requestData)).oauth();
   oAuth.getAccessToken(req.query.oauth_verifier, function (err, accessData) {
-    fs.writeFile('accessData.json', JSON.stringify(accessData), (err) => {console.log(err)})
+    fs.writeFile('ad.json', JSON.stringify(accessData), (err) => {console.log(err)})
     req.session.requestData = JSON.stringify(accessData);
           res.redirect(`${client_url}/authorizing`);
   });
@@ -117,7 +117,7 @@ app.get("/callback", (req, res) => {
 // // make the OAuth call
 
 app.get("/identity", function (req, res) {
-  fs.readFile('accessData.json', (err, data) => {
+  fs.readFile('ad.json', (err, data) => {
     if (err) throw err;
     let dis = new Discogs(JSON.parse(data));
   dis.getIdentity(function (err, data) {
@@ -130,7 +130,7 @@ app.get("/identity", function (req, res) {
 
 //search for a new label
 app.get("/search", function (req, res) {
-  fs.readFile('accessData.json', (err, data) => {
+  fs.readFile('ad.json', (err, data) => {
     if (err) throw err;
     let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis.database().search(req.query.discogsAccessparams, function (err, data) {
@@ -143,7 +143,7 @@ app.get("/search", function (req, res) {
 //search for entries in the users labels
 
 app.get("/usersLabelsSearch", function (req, res) {
-  fs.readFile('accessData.json', (err, data) => {
+  fs.readFile('ad.json', (err, data) => {
     if (err) throw err;
     let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis
