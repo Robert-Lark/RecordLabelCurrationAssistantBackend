@@ -22,10 +22,10 @@ const client = redis.createClient({
   port: REDIS_PORT
 })
 .on('error', function (err) {
-  console.log(redis_host + ":" + redis_port + " " + err);
+  console.log(host + ":" + REDIS_PORT + " " + err);
 })
 .on('connect', function () {
-  console.log('Redis connected ' + redis_host + ":" + redis_port);
+  console.log('Redis connected ' + host + ":" + REDIS_PORT);
 })
 
 app.use(
