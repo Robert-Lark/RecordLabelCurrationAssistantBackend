@@ -3,6 +3,7 @@ const fs = require("fs");
 const access = fs.readFileSync("ad.json");
 // const parsedData = JSON.parse(access)
 const redis = require("redis");
+const client = redis.createClient();
 const Discogs = require("disconnect").Client;
 const express = require("express");
 const app = express();
@@ -15,21 +16,9 @@ const cookieParser = require("cookie-parser");
 // let cookieSession = require("cookie-session");
 
 app.use(cookieParser());
-
-const client = redis
-  .createClient({
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-    port: REDIS_PORT,
-    // if we loose connection, the client will attempt to reconnect to the server once each 1 second
-    retry_strategy: () => 1000,
-  })
-  .on("error", function (err) {
-    console.log(REDIS_PORT + " " + err);
-  })
-  .on("connect", function () {
-    console.log("Redis connected " + REDIS_PORT);
-  });
+client.on('connect', function() {
+  console.log('Connected!');
+});
 
 app.use(
   cors({
@@ -119,8 +108,13 @@ app.get("/authorize", (req, res) => {
 app.get("/callback", (req, res) => {
   let oAuth = new Discogs(JSON.parse(req.session.requestData)).oauth();
   oAuth.getAccessToken(req.query.oauth_verifier, function (err, accessData) {
-    client.setex("peppers", 3600, JSON.stringify(accessData));
+    // client.setex("peppers", 3600, JSON.stringify(accessData));
+    // client.set("access", JSON.stringify(accessData), redis.print);
+    client.set('access', JSON.stringify(accessData), function(err, reply) {
+      console.log(reply); 
+    });
 
+  
     fs.writeFile("ad.json", JSON.stringify(accessData), (err) => {
       console.log(err);
     });
@@ -132,14 +126,17 @@ app.get("/callback", (req, res) => {
 // // make the OAuth call
 
 app.get("/identity", function (req, res) {
-  client.get("peppers", (err, data) => {
+  client.get('access', function(err, data) {
     if (err) throw err;
     let dis = new Discogs(JSON.parse(data));
     dis.getIdentity(function (err, data) {
       console.log(err, data);
       res.send(data);
     });
+
   });
+
+
 });
 
 //search for a new label
