@@ -10,14 +10,20 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
 const port = process.env.PORT || 3001;
-const REDIS_PORT = process.env.REDIS_PORT || 9330;
+const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const cookieParser = require("cookie-parser");
 // let cookieSession = require("cookie-session");
 
 app.use(cookieParser());
 
 const client = redis
-  .createClient()
+  .createClient({
+    host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
+    port: REDIS_PORT,
+    // if we loose connection, the client will attempt to reconnect to the server once each 1 second
+    retry_strategy: () => 1000,
+  })
   .on("error", function (err) {
     console.log(REDIS_PORT + " " + err);
   })
