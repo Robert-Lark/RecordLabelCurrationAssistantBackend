@@ -2,7 +2,7 @@ require("dotenv").config();
 const fs = require('fs')
 const access = fs.readFileSync('ad.json')
 // const parsedData = JSON.parse(access)
-// console.log(parsedData)
+const redis = require('redis');
 const Discogs = require("disconnect").Client;
 const express = require("express");
 const app = express();
@@ -10,10 +10,23 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
 const port = process.env.PORT || 3001;
+const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const cookieParser = require("cookie-parser");
 // let cookieSession = require("cookie-session");
 
 app.use(cookieParser());
+
+const client = redis.createClient({
+  host: process.env.REDIS_HOST,
+  password: process.env.REDIS_PASSWORD,
+  port: REDIS_PORT
+})
+.on('error', function (err) {
+  console.log(redis_host + ":" + redis_port + " " + err);
+})
+.on('connect', function () {
+  console.log('Redis connected ' + redis_host + ":" + redis_port);
+})
 
 app.use(
   cors({
@@ -108,6 +121,8 @@ app.get("/authorize", (req, res) => {
 app.get("/callback", (req, res) => {
   let oAuth = new Discogs(JSON.parse(req.session.requestData)).oauth();
   oAuth.getAccessToken(req.query.oauth_verifier, function (err, accessData) {
+    client.setex("peppers" ,3600, JSON.stringify(accessData));
+
     fs.writeFile('ad.json', JSON.stringify(accessData), (err) => {console.log(err)})
     req.session.requestData = JSON.stringify(accessData);
           res.redirect(`${client_url}/authorizing`);
@@ -117,7 +132,7 @@ app.get("/callback", (req, res) => {
 // // make the OAuth call
 
 app.get("/identity", function (req, res) {
-  fs.readFile('ad.json', (err, data) => {
+  client.get("peppers", (err, data) => {
     if (err) throw err;
     let dis = new Discogs(JSON.parse(data));
   dis.getIdentity(function (err, data) {
@@ -130,7 +145,7 @@ app.get("/identity", function (req, res) {
 
 //search for a new label
 app.get("/search", function (req, res) {
-  fs.readFile('ad.json', (err, data) => {
+  client.get("peppers", (err, data) => {
     if (err) throw err;
     let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis.database().search(req.query.discogsAccessparams, function (err, data) {
@@ -143,7 +158,7 @@ app.get("/search", function (req, res) {
 //search for entries in the users labels
 
 app.get("/usersLabelsSearch", function (req, res) {
-  fs.readFile('ad.json', (err, data) => {
+  client.get("peppers", (err, data) => {
     if (err) throw err;
     let dis = new Discogs( "Sonic Archtecturev1.0", JSON.parse(data));
   dis
