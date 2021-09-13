@@ -17,15 +17,15 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
 const client = redis.createClient({
-  host: process.env.REDIS_HOST,
-  password: process.env.REDIS_PASSWORD,
+  // host: process.env.REDIS_HOST, 
+  // password: process.env.REDIS_PASSWORD,
   port: REDIS_PORT
 })
 .on('error', function (err) {
-  console.log(host + ":" + REDIS_PORT + " " + err);
+  console.log( REDIS_PORT + " " + err);
 })
 .on('connect', function () {
-  console.log('Redis connected ' + host + ":" + REDIS_PORT);
+  console.log('Redis connected ' +  REDIS_PORT);
 })
 
 app.use(
