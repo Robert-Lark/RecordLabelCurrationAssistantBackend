@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
 const port = process.env.PORT || 3001;
-const REDIS_PORT = process.env.REDIS_PORT || 6379;
+const REDIS_PORT = process.env.REDIS_PORT || 9330;
 const cookieParser = require("cookie-parser");
 // let cookieSession = require("cookie-session");
 
